@@ -23,17 +23,6 @@ Bốn vai của lab:
 Đổi người viết code sau giờ giải lao, để ít nhất hai người trong nhóm tự tay tính được chi phí.
 
 ## Cá nhân
-
-Mỗi thành viên đồng thời tạo một báo cáo riêng trong `report/` theo dạng:
-
-```text
-report/team/MSSV_HoTen.md
-```
-
-Ví dụ: `report/team/20241234_NguyenVanAn.md`.
-
-Sao chép mục dưới đây cho từng thành viên.
-
 ## DaoThiNgocAnh-2A202603790
 
 Báo cáo cá nhân: `report/team/2A202603790_DaoThiNgocAnh.md`.
