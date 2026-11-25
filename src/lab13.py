@@ -198,6 +198,50 @@ if __name__ == '__main__':
         hoa_von = (BASELINE * tc_pv - tok_tool - tien_lam) / (so_xem * LUONG_PHUT)
         print(f'làm lại {phut_lam:4} phút/ca: tổng {tong_b4:,.0f} đ → cps {tong_b4 / tc_pv:,.0f} đ '
               f'= {tong_b4 / tc_pv / BASELINE:.2f}× · hoà vốn khi xem lại ≤ {hoa_von:.1f} phút')
-    # TODO CP4 · Nhiệm vụ D: cỡ mẫu.
-    #   from statsmodels.stats.proportion import proportion_effectsize
-    #   from statsmodels.stats.power import NormalIndPower
+    # CP4 · Nhiệm vụ D1: cỡ mẫu (baseline 0,70; +5 điểm; alpha 0,05; power 0,8; ICC 0,02).
+    from statistics import NormalDist
+    from statsmodels.stats.proportion import proportion_effectsize
+    from statsmodels.stats.power import NormalIndPower
+
+    def co_mau(p1, p2, alpha=0.05, power=0.8):
+        """Cỡ mẫu mỗi nhóm khi so hai tỉ lệ (công thức trong docs/du_lieu_va_cong_thuc.md)."""
+        za, zb = NormalDist().inv_cdf(1 - alpha / 2), NormalDist().inv_cdf(power)
+        pb = (p1 + p2) / 2
+        return math.ceil((za * math.sqrt(2 * pb * (1 - pb))
+                          + zb * math.sqrt(p1 * (1 - p1) + p2 * (1 - p2))) ** 2 / (p2 - p1) ** 2)
+
+    def he_so_thiet_ke(m, icc=0.02):
+        return 1 + (m - 1) * icc
+
+    ICC = 0.02
+    print('\n== D1 · Cỡ mẫu ==')
+    n5 = co_mau(0.70, 0.75)
+    n_sm = NormalIndPower().solve_power(proportion_effectsize(0.75, 0.70), alpha=0.05, power=0.8)
+    print(f'a) Theo yêu cầu: {n5} mỗi nhóm (statsmodels, arcsin: {math.ceil(n_sm)})')
+    de75 = he_so_thiet_ke(75, ICC)
+    nb = math.ceil(n5 * de75)
+    nv = math.ceil(nb / 75)
+    print(f'b) Theo nhân viên m=75: DE = {de75:.2f}, n = {nb} mỗi nhóm → {nv} người/nhóm, '
+          f'tổng {2 * nv} {">" if 2 * nv > 40 else "≤"} 40 nhân viên')
+    print(f'c) 20 nhân viên/nhóm: hiệu dụng tối đa < c/ICC = {20 / ICC:,.0f} '
+          f'({"đạt" if 20 / ICC >= n5 else "không đạt"} {n5})')
+    print(f'd) 6 depot/nhóm: hiệu dụng tối đa < {6 / ICC:,.0f}')
+    n6 = co_mau(0.70, 0.76)
+    m_min = math.ceil(n6 * (1 - ICC) / (20 - n6 * ICC))   # giải 20m / (1 + (m-1)ICC) ≥ n6
+    print(f'e) Mức chênh 6 điểm: {n6} mỗi nhóm; 20 người/nhóm cần m ≥ {m_min} yêu cầu/người '
+          f'(DE {he_so_thiet_ke(m_min, ICC):.2f}, hiệu dụng {20 * m_min / he_so_thiet_ke(m_min, ICC):,.0f})')
+    # Con số bất lợi: thiết kế cho 6 điểm mà tác động thật chỉ 5 điểm thì power còn bao nhiêu?
+    pw = NormalIndPower().power(proportion_effectsize(0.75, 0.70), nobs1=n6, alpha=0.05)
+    print(f'   Power nếu tác động thật chỉ +5 điểm với {n6}/nhóm: {pw:.2f}')
+
+    # Tỉ lệ hiện tại của các chỉ số an toàn / sử dụng, trước khi đặt luật dừng.
+    print('\n== Tỉ lệ hiện tại trong đợt chạy thử (đặt ngưỡng luật dừng) ==')
+    print(f"mo_lai_trong_7_ngay: toàn mẫu {reqs['mo_lai_trong_7_ngay'].mean():.2%} "
+          f"({reqs['mo_lai_trong_7_ngay'].sum()}/{len(reqs)}), phạm vi noi_dia+hang_nang "
+          f"{pham_vi['mo_lai_trong_7_ngay'].mean():.2%}")
+    print(f"Chỉ số chính (đóng 24h, không mở lại 7 ngày) trong phạm vi: "
+          f"{((pham_vi['dong_trong_24h'] == 1) & (pham_vi['mo_lai_trong_7_ngay'] == 0)).mean():.2%}")
+    xem = pham_vi[pham_vi['duoc_xem_lai'] == 1]
+    print(f"Được xem lại trong phạm vi: {len(xem)}/{len(pham_vi)} = {len(xem) / len(pham_vi):.1%}; "
+          f"quyết định bỏ: {(xem['quyet_dinh_xem_lai'] == 'bo').mean():.1%}, "
+          f"sửa: {(xem['quyet_dinh_xem_lai'] == 'sua').mean():.1%}")
