@@ -4,7 +4,7 @@
 
 ## Hai bộ nhãn độc lập
 
-Người gắn nhãn 1: (điền họ tên) · Người gắn nhãn 2: chưa có (làm một mình, đang hỏi coach cách xử lý)
+Người gắn nhãn 1: Đào Thị Ngọc Ánh · Người gắn nhãn 2: chưa có (làm một mình, đang hỏi coach cách xử lý)
 
 Ghi chú trung thực: người gắn nhãn 1 tự chọn nhãn từng ca, có dùng Claude để đặt câu hỏi gợi ý theo bảng định nghĩa năm loại (không đưa đáp án). Ca 1, 5, 8 đổi nhãn sau câu hỏi gợi ý. Cột "Nhãn thống nhất" chốt sau khi so với nhãn tham khảo; chỉ ca 20 khác.
 
