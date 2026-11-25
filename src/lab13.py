@@ -100,6 +100,8 @@ def chi_phi_co_dinh(cps_pham_vi, ti_le_tc, khoi_luong_thang=45000, co_dinh=40_00
 
 
 if __name__ == '__main__':
+    import sys
+    sys.stdout.reconfigure(encoding='utf-8')   # để cửa sổ lệnh Windows in được tiếng Việt
     runs = pd.read_csv('logix_runs.csv')
     reqs = pd.read_csv('logix_requests.csv', keep_default_na=False)
     kiem_tra_dap_an_biet_truoc()
@@ -245,3 +247,16 @@ if __name__ == '__main__':
     print(f"Được xem lại trong phạm vi: {len(xem)}/{len(pham_vi)} = {len(xem) / len(pham_vi):.1%}; "
           f"quyết định bỏ: {(xem['quyet_dinh_xem_lai'] == 'bo').mean():.1%}, "
           f"sửa: {(xem['quyet_dinh_xem_lai'] == 'sua').mean():.1%}")
+
+    # CP5 · Nhiệm vụ E1: tính thử ba chỉ số trên 1.200 yêu cầu (đợt chạy thử, không có đối chứng).
+    print('\n== E1 · Ba chỉ số trong đợt chạy thử ==')
+    chinh = (reqs['dong_trong_24h'] == 1) & (reqs['mo_lai_trong_7_ngay'] == 0)
+    xem_all = reqs[reqs['duoc_xem_lai'] == 1]
+    bo_qua = xem_all['quyet_dinh_xem_lai'].isin(['sua', 'bo'])
+    an_toan = reqs['mo_lai_trong_7_ngay'] == 1
+    print(f'Chính   : {chinh.mean():.2%} ({chinh.sum()}/{len(reqs)})')
+    print(f'Dùng    : {bo_qua.mean():.2%} ({bo_qua.sum()}/{len(xem_all)}) bỏ qua gợi ý (sua + bo)')
+    print(f'An toàn : {an_toan.mean():.2%} ({an_toan.sum()}/{len(reqs)}) mở lại trong 7 ngày')
+    lam_lai_pv = (pham_vi['ket_qua'] == 'lam_lai').mean()
+    print(f"Tỉ lệ làm lại trong phạm vi noi_dia+hang_nang: {lam_lai_pv:.1%}; "
+          f"được xem lại toàn mẫu: {len(xem_all) / len(reqs):.1%}")
